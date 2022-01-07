@@ -458,6 +458,9 @@ type MultiStorePersistentCache interface {
 	// cache.
 	GetStoreCache(key StoreKey, store CommitKVStore) CommitKVStore
 
+	// Sets the cache size of the provided CommitKVStore
+	SetCacheSize(size uint)
+
 	// Return the underlying CommitKVStore for a StoreKey.
 	Unwrap(key StoreKey) CommitKVStore
 

@@ -9,6 +9,8 @@ import (
 
 	clientflags "github.com/cosmos/cosmos-sdk/client/flags"
 	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
+	"github.com/cosmos/cosmos-sdk/store/cache"
+	"github.com/cosmos/cosmos-sdk/store/iavl"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -80,6 +82,9 @@ type BaseConfig struct {
 
 	// InterBlockCache enables inter-block caching.
 	InterBlockCache bool `mapstructure:"inter-block-cache"`
+
+	// InterBlockCacheSize set the size of the inter-block cache.
+	InterBlockCacheSize uint `mapstructure:"inter-block-cache-size"`
 
 	// IndexEvents defines the set of events in the form {eventType}.{attributeKey},
 	// which informs Tendermint what to index. If empty, all events will be indexed.
@@ -281,12 +286,13 @@ func DefaultConfig() *Config {
 		BaseConfig: BaseConfig{
 			MinGasPrices:        defaultMinGasPrices,
 			InterBlockCache:     true,
+			InterBlockCacheSize: cache.DefaultCommitKVStoreCacheSize,
 			Pruning:             pruningtypes.PruningOptionDefault,
 			PruningKeepRecent:   "0",
 			PruningInterval:     "0",
 			MinRetainBlocks:     0,
 			IndexEvents:         make([]string, 0),
-			IAVLCacheSize:       781250, // 50 MB
+			IAVLCacheSize:       iavl.DefaultIAVLCacheSize,
 			IAVLDisableFastNode: false,
 			IAVLLazyLoading:     false,
 			AppDBBackend:        "",
