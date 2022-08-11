@@ -639,8 +639,6 @@ func (k Keeper) Delegate(
 		return sdk.ZeroDec(), err
 	}
 
-	delegatorAddress := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
-
 	currHeight := ctx.BlockHeight()
 	// If Delegations are allowed again, limit validator power to 20%
 	if currHeight >= DelegatePowerRevertHeight {
