@@ -8,6 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+// MinCommissionRate is set to 5%
+var MinCommissionRate = sdk.NewDecWithPrec(5, 2)
+
 // Migrate performs in-place store migrations from v0.45.13 to v0.45.14.
 // The migration includes:
 //
@@ -20,10 +23,10 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Binar
 
 func migrateParamsStore(ctx sdk.Context, paramstore paramtypes.Subspace) {
 	if paramstore.HasKeyTable() {
-		paramstore.Set(ctx, types.KeyMinCommissionRate, types.DefaultMinCommissionRate)
+		paramstore.Set(ctx, types.KeyMinCommissionRate, MinCommissionRate)
 	} else {
 		paramstore.WithKeyTable(types.ParamKeyTable())
-		paramstore.Set(ctx, types.KeyMinCommissionRate, types.DefaultMinCommissionRate)
+		paramstore.Set(ctx, types.KeyMinCommissionRate, MinCommissionRate)
 	}
 }
 
@@ -34,12 +37,12 @@ func migrateValidators(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.
 
 	for ; iterator.Valid(); iterator.Next() {
 		validator := types.MustUnmarshalValidator(cdc, iterator.Value())
-		if validator.Commission.CommissionRates.Rate.LT(types.DefaultMinCommissionRate) {
-			validator.Commission.CommissionRates.Rate = types.DefaultMinCommissionRate
+		if validator.Commission.CommissionRates.Rate.LT(MinCommissionRate) {
+			validator.Commission.CommissionRates.Rate = MinCommissionRate
 		}
 
-		if validator.Commission.CommissionRates.MaxRate.LT(types.DefaultMinCommissionRate) {
-			validator.Commission.CommissionRates.MaxRate = types.DefaultMinCommissionRate
+		if validator.Commission.CommissionRates.MaxRate.LT(MinCommissionRate) {
+			validator.Commission.CommissionRates.MaxRate = MinCommissionRate
 		}
 		store.Set(iterator.Key(), types.MustMarshalValidator(cdc, &validator))
 	}

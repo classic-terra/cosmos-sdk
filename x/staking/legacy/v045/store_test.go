@@ -103,7 +103,7 @@ func TestMigrate(t *testing.T) {
 
 	minCommissionRate := sdk.Dec{}
 	paramstore.Get(ctx, types.KeyMinCommissionRate, &minCommissionRate)
-	require.Equal(t, types.DefaultMinCommissionRate, minCommissionRate)
+	require.Equal(t, v045staking.MinCommissionRate, minCommissionRate)
 
 	// Make sure the validators commission is set correctly.
 	iterator := sdk.KVStorePrefixIterator(store, types.ValidatorsKey)

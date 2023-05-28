@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+### Improvements
+
+* [\#3](https://github.com/classic-terra/cosmos-sdk/pull/3) Add `MinCommissionRate` param to `x/staking` module.
+
 ## v0.45.13 - 2023-02-09
 
 ### Improvements
