@@ -37,9 +37,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## v0.45.14 - 2023-05-31
+
 ### Improvements
 
-* [\#3](https://github.com/classic-terra/cosmos-sdk/pull/3) Add `MinCommissionRate` param to `x/staking` module.
+* (x/staking) [\#3](https://github.com/classic-terra/cosmos-sdk/pull/3) Add `MinCommissionRate` param to `x/staking` module.
+
+### Bug Fixes
+
+* (x/feegrant) [#4](https://github.com/classic-terra/cosmos-sdk/pull/4) Fix infinite feegrant allowance bug.
 
 ## v0.45.13 - 2023-02-09
 
