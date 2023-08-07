@@ -241,18 +241,19 @@ func (app *BaseApp) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
 		panic(fmt.Sprintf("unknown RequestCheckTx type: %s", req.Type))
 	}
 
-	gInfo, result, anteEvents, priority, err := app.runTx(mode, req.Tx)
+	gInfo, result, anteEvents, priority, tx, err := app.runTx(mode, req.Tx)
 	if err != nil {
 		return sdkerrors.ResponseCheckTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, anteEvents, app.trace)
 	}
 
 	return abci.ResponseCheckTx{
-		GasWanted: int64(gInfo.GasWanted), // TODO: Should type accept unsigned ints?
-		GasUsed:   int64(gInfo.GasUsed),   // TODO: Should type accept unsigned ints?
-		Log:       result.Log,
-		Data:      result.Data,
-		Events:    sdk.MarkEventsToIndex(result.Events, app.indexEvents),
-		Priority:  priority,
+		GasWanted:  int64(gInfo.GasWanted), // TODO: Should type accept unsigned ints?
+		GasUsed:    int64(gInfo.GasUsed),   // TODO: Should type accept unsigned ints?
+		Log:        result.Log,
+		Data:       result.Data,
+		Events:     sdk.MarkEventsToIndex(result.Events, app.indexEvents),
+		Priority:   priority,
+		IsOracleTx: isOracleTx(tx.GetMsgs()),
 	}
 }
 
