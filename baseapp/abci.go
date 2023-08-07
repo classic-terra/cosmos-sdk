@@ -257,6 +257,19 @@ func (app *BaseApp) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
 	}
 }
 
+func isOracleTx(msgs []sdk.Msg) bool {
+	for _, msg := range msgs {
+		if sdk.MsgTypeURL(msg) == "/terra.oracle.v1beta1.MsgAggregateExchangeRatePrevote" ||
+			sdk.MsgTypeURL(msg) == "/terra.oracle.v1beta1.MsgAggregateExchangeRateVote" {
+			continue
+		} else {
+			return false
+		}
+	}
+
+	return true
+}
+
 // DeliverTx implements the ABCI interface and executes a tx in DeliverTx mode.
 // State only gets persisted if all messages are valid and get executed successfully.
 // Otherwise, the ResponseDeliverTx will contain releveant error information.
@@ -281,7 +294,7 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 		telemetry.SetGauge(float32(gInfo.GasWanted), "tx", "gas", "wanted")
 	}()
 
-	gInfo, result, anteEvents, _, err := app.runTx(runTxModeDeliver, req.Tx)
+	gInfo, result, anteEvents, _, _, err := app.runTx(runTxModeDeliver, req.Tx)
 	if err != nil {
 		resultStr = "failed"
 		return sdkerrors.ResponseDeliverTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, sdk.MarkEventsToIndex(anteEvents, app.indexEvents), app.trace)

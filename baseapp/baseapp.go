@@ -757,7 +757,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 		}
 	}
 
-	return gInfo, result, anteEvents, priority, nil, err
+	return gInfo, result, anteEvents, priority, tx, err
 }
 
 // runMsgs iterates through a list of messages and executes them with the provided

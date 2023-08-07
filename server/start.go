@@ -53,7 +53,6 @@ const (
 	FlagUnsafeSkipUpgrades  = "unsafe-skip-upgrades"
 	FlagTrace               = "trace"
 	FlagInvCheckPeriod      = "inv-check-period"
-	FlagIAVLCacheSize       = "iavl-cache-size"
 
 	FlagPruning             = "pruning"
 	FlagPruningKeepRecent   = "pruning-keep-recent"
