@@ -657,10 +657,11 @@ func (k Keeper) Delegate(
 		newTotalPower := lastPower.Int64() + sdk.TokensToConsensusPower(bondAmt, k.PowerReduction(ctx))
 
 		// Compute what the new Validator voting power would be in relation to the new total power
-		validatorIncreasedDelegationPercent := float32(validatorNewPower) / float32(newTotalPower)
+		// validatorIncreasedDelegationPercent := float32(validatorNewPower) / float32(newTotalPower)
+		validatorIncreasedDelegationPercent := sdk.NewDec(validatorNewPower).QuoInt64(newTotalPower)
 
 		// If Delegations are allowed, and the Delegation would have increased the Validator to over 20% of the staking power, do not allow the Delegation to proceed
-		if validatorIncreasedDelegationPercent > 0.2 {
+		if validatorIncreasedDelegationPercent.GT(sdk.NewDecWithPrec(20, 2)) {
 			panic("validator power is over the allowed limit")
 		}
 	}
