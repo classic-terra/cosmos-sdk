@@ -651,7 +651,7 @@ func (k Keeper) Delegate(
 		validatorLastPower := sdk.TokensToConsensusPower(validator.Tokens, k.PowerReduction(ctx))
 
 		// Get the new power of the validator if delegated the bond amount
-		validatorNewPower := int64(validatorLastPower) + sdk.TokensToConsensusPower(bondAmt, k.PowerReduction(ctx))
+		validatorNewPower := validatorLastPower + sdk.TokensToConsensusPower(bondAmt, k.PowerReduction(ctx))
 
 		// Compute what the Total Consensus Power would be if this Delegation goes through
 		newTotalPower := lastPower.Int64() + sdk.TokensToConsensusPower(bondAmt, k.PowerReduction(ctx))
