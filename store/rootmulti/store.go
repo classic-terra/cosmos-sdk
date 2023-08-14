@@ -105,7 +105,6 @@ func (rs *Store) SetSnapshotInterval(snapshotInterval uint64) {
 	rs.pruningManager.SetSnapshotInterval(snapshotInterval)
 }
 
-// SetIAVLCacheSize sets the size of IAVL cache tree.
 func (rs *Store) SetIAVLCacheSize(cacheSize int) {
 	rs.iavlCacheSize = cacheSize
 }
