@@ -174,7 +174,7 @@ replace (
 	// replace broken goleveldb.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
-	github.com/tendermint/tendermint => github.com/classic-terra/cometbft v0.34.30-0.20230807131935-c57262354b85
+	github.com/tendermint/tendermint => github.com/classic-terra/cometbft v0.34.29-terra.0
 )
 
 retract (
