@@ -641,9 +641,8 @@ func (k Keeper) Delegate(
 
 	delegatorAddress := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
 
-	currHeight := ctx.BlockHeight()
 	// If Delegations are allowed again, limit validator power to 20%
-	if currHeight >= DelegatePowerRevertHeight {
+	if ctx.ChainID() == ColumbusChainID {
 		// Get the last Total Power of the validator set
 		lastPower := k.GetLastTotalPower(ctx)
 

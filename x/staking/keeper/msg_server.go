@@ -17,12 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// DelegatePowerRevertHeight re-enables the ability to delegate stake to existing validators
-// Projected block is 23 days from August 3, on August 26
-// 10 * 60min * 24 hrs * 23 days = 331,200 blocks
-// current block height on August 3 is 8,778,790
-// projected block on August 26 is 8,778,790 + 331,200 = 9,109,990.
-const DelegatePowerRevertHeight = 9109990
+const ColumbusChainID = "columbus-5"
 
 type msgServer struct {
 	Keeper
