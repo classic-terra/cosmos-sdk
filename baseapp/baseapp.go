@@ -663,6 +663,14 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 	}
 
 	msgs := tx.GetMsgs()
+	for _, msg := range msgs {
+		typeURL := sdk.MsgTypeURL(msg)
+		if strings.HasPrefix(typeURL, "/terra.wasm.v1beta1") {
+			err := sdkerrors.Wrapf(sdkerrors.ErrTxDecode, "unable to resolve type URL %s", typeURL)
+			return sdk.GasInfo{}, nil, nil, nil, err
+		}
+	}
+
 	if err := validateBasicTxMsgs(msgs); err != nil {
 		return sdk.GasInfo{}, nil, nil, nil, err
 	}
