@@ -299,6 +299,10 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 	gInfo, result, anteEvents, _, err := app.runTx(runTxModeDeliver, req.Tx)
 	if err != nil {
 		resultStr = "failed"
+		if app.deliverState.ctx.ChainID() == "columbus-5" &&
+			app.deliverState.ctx.BlockHeader().Height == 14354773 {
+			gInfo.GasUsed = 18837503
+		}
 		return sdkerrors.ResponseDeliverTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, sdk.MarkEventsToIndex(anteEvents, app.indexEvents), app.trace)
 	}
 
