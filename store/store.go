@@ -1,6 +1,8 @@
 package store
 
 import (
+	"os"
+
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
@@ -10,7 +12,7 @@ import (
 )
 
 func NewCommitMultiStore(db dbm.DB) types.CommitMultiStore {
-	return rootmulti.NewStore(db, log.NewNopLogger())
+	return rootmulti.NewStore(db, log.NewTMLogger(log.NewSyncWriter(os.Stdout)))
 }
 
 func NewCommitKVStoreCacheManager() types.MultiStorePersistentCache {
