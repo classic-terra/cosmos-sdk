@@ -170,7 +170,7 @@ func NewBaseApp(
 		name:   name,
 		appStore: appStore{
 			db:             db,
-			cms:            store.NewCommitMultiStore(db),
+			cms:            store.NewCommitMultiStore(db, logger),
 			storeLoader:    DefaultStoreLoader,
 			fauxMerkleMode: false,
 		},

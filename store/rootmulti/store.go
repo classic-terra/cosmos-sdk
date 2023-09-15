@@ -605,7 +605,7 @@ func (rs *Store) PruneStores(clearPruningManager bool, pruningHeights []int64) (
 		return nil
 	}
 
-	rs.logger.Debug("pruning heights", "heights", pruningHeights)
+	rs.logger.Debug("pruning heights", "heights", len(pruningHeights))
 
 	for key, store := range rs.stores {
 		// If the store is wrapped with an inter-block cache, we must first unwrap
@@ -614,6 +614,7 @@ func (rs *Store) PruneStores(clearPruningManager bool, pruningHeights []int64) (
 			continue
 		}
 
+		rs.logger.Debug("pruning store", "store", key)
 		store = rs.GetCommitKVStore(key)
 
 		err := store.(*iavl.Store).DeleteVersions(pruningHeights...)

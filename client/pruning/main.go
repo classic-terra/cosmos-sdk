@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -13,6 +14,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
+
+	cfg "github.com/tendermint/tendermint/config"
+	tmflags "github.com/tendermint/tendermint/libs/cli/flags"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 )
@@ -81,6 +85,10 @@ Supported app-db-backend types include 'goleveldb', 'rocksdb', 'pebbledb'.`,
 			}
 
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+			logger, err = tmflags.ParseLogLevel(vp.GetString(flags.FlagLogLevel), logger, cfg.DefaultLogLevel)
+			if err != nil {
+				return err
+			}
 			app := appCreator(logger, db, nil, vp)
 			cms := app.CommitMultiStore()
 
@@ -94,8 +102,16 @@ Supported app-db-backend types include 'goleveldb', 'rocksdb', 'pebbledb'.`,
 				return fmt.Errorf("the database has no valid heights to prune, the latest height: %v", latestHeight)
 			}
 
+			startHeight := 1
+
+			if str := vp.GetString(flags.FlagHeight); str != "" {
+				if startHeight, err = strconv.Atoi(str); err != nil {
+					return fmt.Errorf("invalid height flag %v", str)
+				}
+			}
+
 			var pruningHeights []int64
-			for height := int64(1); height < latestHeight; height++ {
+			for height := int64(startHeight); height < latestHeight; height++ {
 				if height < latestHeight-int64(pruningOptions.KeepRecent) {
 					pruningHeights = append(pruningHeights, height)
 				}
@@ -121,7 +137,7 @@ Supported app-db-backend types include 'goleveldb', 'rocksdb', 'pebbledb'.`,
 	cmd.Flags().Uint64(server.FlagPruningInterval, 10,
 		`Height interval at which pruned heights are removed from disk (ignored if pruning is not 'custom'), 
 		this is not used by this command but kept for compatibility with the complete pruning options`)
-
+	cmd.Flags().Uint64(server.FlagHeight, 1, `the height to begin with`)
 	return cmd
 }
 
