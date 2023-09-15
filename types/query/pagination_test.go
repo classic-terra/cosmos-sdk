@@ -7,6 +7,8 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
@@ -342,7 +344,7 @@ func setupTest(t *testing.T) (*simapp.SimApp, sdk.Context, codec.Codec) {
 	appCodec := app.AppCodec()
 
 	db := dbm.NewMemDB()
-	ms := store.NewCommitMultiStore(db)
+	ms := store.NewCommitMultiStore(db, log.NewNopLogger())
 
 	ms.LoadLatestVersion()
 
