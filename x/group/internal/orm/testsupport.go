@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/gaskv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	dbm "github.com/tendermint/tm-db"
 )
 
