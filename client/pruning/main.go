@@ -127,7 +127,6 @@ Supported app-db-backend types include 'goleveldb', 'rocksdb', 'pebbledb'.`,
 			}
 
 			cmd.Println("successfully pruned the application root multi stores")
-			cmd.Flags().Uint64(server.FlagHeight, 1, `the height to begin with`)
 			return nil
 		},
 	}
