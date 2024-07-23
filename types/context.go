@@ -33,6 +33,7 @@ type Context struct {
 	voteInfo             []abci.VoteInfo
 	gasMeter             GasMeter
 	blockGasMeter        GasMeter
+	taxGasMeter          GasMeter
 	checkTx              bool
 	recheckTx            bool // if recheckTx == true, then checkTx must also be true
 	minGasPrice          DecCoins
@@ -57,6 +58,7 @@ func (c Context) Logger() log.Logger                         { return c.logger }
 func (c Context) VoteInfos() []abci.VoteInfo                 { return c.voteInfo }
 func (c Context) GasMeter() GasMeter                         { return c.gasMeter }
 func (c Context) BlockGasMeter() GasMeter                    { return c.blockGasMeter }
+func (c Context) TaxGasMeter() GasMeter                      { return c.taxGasMeter }
 func (c Context) IsCheckTx() bool                            { return c.checkTx }
 func (c Context) IsReCheckTx() bool                          { return c.recheckTx }
 func (c Context) MinGasPrices() DecCoins                     { return c.minGasPrice }
@@ -106,6 +108,7 @@ func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, logger log
 		checkTx:              isCheckTx,
 		logger:               logger,
 		gasMeter:             storetypes.NewInfiniteGasMeter(),
+		taxGasMeter:          storetypes.NewInfiniteGasMeter(),
 		minGasPrice:          DecCoins{},
 		eventManager:         NewEventManager(),
 		kvGasConfig:          storetypes.KVGasConfig(),
