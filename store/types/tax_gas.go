@@ -7,7 +7,11 @@ import (
 )
 
 // Gas measured by the SDK
-type TaxGas = sdkmath.Uint
+type TaxGas = sdkmath.Int
+
+type ErrorGasInputNegative struct {
+	Descriptor string
+}
 
 // GasMeter interface to track gas consumption
 type TaxGasMeter interface {
@@ -24,7 +28,7 @@ type basicTaxGasMeter struct {
 // NewGasMeter returns a reference to a new basicGasMeter.
 func NewTaxGasMeter() TaxGasMeter {
 	return &basicTaxGasMeter{
-		consumed: sdkmath.ZeroUint(),
+		consumed: sdkmath.ZeroInt(),
 	}
 }
 
@@ -34,7 +38,11 @@ func (g *basicTaxGasMeter) GasConsumed() TaxGas {
 }
 
 // ConsumeGas adds the given amount of gas to the gas consumed and panics if it overflows the limit or out of gas.
-func (g *basicTaxGasMeter) ConsumeGas(amount TaxGas, _descriptor string) {
+func (g *basicTaxGasMeter) ConsumeGas(amount TaxGas, descriptor string) {
+	if amount.IsNegative() {
+		panic(ErrorGasInputNegative{Descriptor: descriptor})
+	}
+
 	g.consumed = g.consumed.Add(amount)
 }
 
@@ -45,6 +53,10 @@ func (g *basicTaxGasMeter) ConsumeGas(amount TaxGas, _descriptor string) {
 // EVM-compatible chains can fully support the go-ethereum StateDb interface.
 // See https://github.com/cosmos/cosmos-sdk/pull/9403 for reference.
 func (g *basicTaxGasMeter) RefundGas(amount TaxGas, descriptor string) {
+	if amount.IsNegative() {
+		panic(ErrorGasInputNegative{Descriptor: descriptor})
+	}
+
 	if g.consumed.LTE(amount) {
 		panic(ErrorNegativeGasConsumed{Descriptor: descriptor})
 	}
