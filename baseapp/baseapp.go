@@ -833,7 +833,6 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 		msgLogs = append(msgLogs, sdk.NewABCIMessageLog(uint32(i), msgResult.Log, msgEvents))
 	}
 
-	fmt.Println("new ctx: ", ctx.Value("taxes"))
 	data, err := makeABCIData(msgResponses)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to marshal tx data")

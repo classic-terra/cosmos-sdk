@@ -146,9 +146,10 @@ type TraceContext = types.TraceContext
 // --------------------------------------
 
 type (
-	Gas       = types.Gas
-	GasMeter  = types.GasMeter
-	GasConfig = types.GasConfig
+	Gas         = types.Gas
+	GasMeter    = types.GasMeter
+	TaxGasMeter = types.TaxGasMeter
+	GasConfig   = types.GasConfig
 )
 
 type (
