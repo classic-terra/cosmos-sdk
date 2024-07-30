@@ -240,6 +240,12 @@ func (c Context) WithMinGasPrices(gasPrices DecCoins) Context {
 	return c
 }
 
+// WithTaxGasMeter returns a Context with an updated tax gas meter value
+func (c Context) WithNewTaxGasMeter() Context {
+	c.taxGasMeter = storetypes.NewTaxGasMeter()
+	return c
+}
+
 // WithConsensusParams returns a Context with an updated consensus params
 func (c Context) WithConsensusParams(params *tmproto.ConsensusParams) Context {
 	c.consParams = params
