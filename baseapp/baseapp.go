@@ -757,7 +757,6 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 			// We clear this to correctly order events without duplicates.
 			// Note that the state is still preserved.
 			postCtx := runMsgCtx.WithEventManager(sdk.NewEventManager())
-			fmt.Println("postCtx taxgas meter: ", postCtx.TaxGasMeter().GasConsumed())
 
 			newCtx, err := app.postHandler(postCtx, tx, mode == runTxModeSimulate, err == nil)
 			if err != nil {
