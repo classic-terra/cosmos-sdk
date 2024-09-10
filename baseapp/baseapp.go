@@ -35,12 +35,13 @@ type (
 )
 
 const (
-	runTxModeCheck       runTxMode = iota // Check a transaction
-	runTxModeReCheck                      // Recheck a (pending) transaction after a commit
-	runTxModeSimulate                     // Simulate a transaction
-	runTxModeDeliver                      // Deliver a transaction
-	runTxPrepareProposal                  // Prepare a TM block proposal
-	runTxProcessProposal                  // Process a TM block proposal
+	runTxModeCheck           runTxMode = iota // Check a transaction
+	runTxModeReCheck                          // Recheck a (pending) transaction after a commit
+	runTxModeSimulate                         // Simulate a transaction
+	runTxModeSimulateSpecial                  // Simulate and check tx at the same time
+	runTxModeDeliver                          // Deliver a transaction
+	runTxPrepareProposal                      // Prepare a TM block proposal
+	runTxProcessProposal                      // Process a TM block proposal
 )
 
 var _ abci.Application = (*BaseApp)(nil)
@@ -597,6 +598,10 @@ func (app *BaseApp) getContextForTx(mode runTxMode, txBytes []byte) sdk.Context 
 		ctx, _ = ctx.CacheContext()
 	}
 
+	if mode == runTxModeSimulateSpecial {
+		ctx, _ = ctx.CacheContext()
+		ctx = ctx.WithSpecialSimulate(true)
+	}
 	return ctx
 }
 
@@ -700,7 +705,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 		// performance benefits, but it'll be more difficult to get right.
 		anteCtx, msCache = app.cacheTxContext(ctx, txBytes)
 		anteCtx = anteCtx.WithEventManager(sdk.NewEventManager())
-		newCtx, err := app.anteHandler(anteCtx, tx, mode == runTxModeSimulate)
+		newCtx, err := app.anteHandler(anteCtx, tx, mode == runTxModeSimulate || mode == runTxModeSimulateSpecial)
 
 		if !newCtx.IsZero() {
 			// At this point, newCtx.MultiStore() is a store branch, or something else
@@ -758,7 +763,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 			// Note that the state is still preserved.
 			postCtx := runMsgCtx.WithEventManager(sdk.NewEventManager())
 
-			newCtx, err := app.postHandler(postCtx, tx, mode == runTxModeSimulate, err == nil)
+			newCtx, err := app.postHandler(postCtx, tx, mode == runTxModeSimulate || mode == runTxModeSimulateSpecial, err == nil)
 			if err != nil {
 				return gInfo, nil, anteEvents, priority, nil, err
 			}
@@ -773,7 +778,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 			msCache.Write()
 		}
 
-		if len(anteEvents) > 0 && (mode == runTxModeDeliver || mode == runTxModeSimulate) {
+		if len(anteEvents) > 0 && (mode == runTxModeDeliver || mode == runTxModeSimulate || mode == runTxModeSimulateSpecial) {
 			// append the events in the order of occurrence
 			result.Events = append(anteEvents, result.Events...)
 		}

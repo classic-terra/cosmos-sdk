@@ -75,6 +75,10 @@ func (d debuggingGasMeter) String() string {
 	return d.g.String()
 }
 
+func (d debuggingGasMeter) ExtendGasLimit() {
+
+}
+
 type GasCountingMockContext struct {
 	GasMeter sdk.GasMeter
 }

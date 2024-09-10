@@ -29,14 +29,16 @@ type baseAppSimulateFn func(txBytes []byte) (sdk.GasInfo, *sdk.Result, error)
 type txServer struct {
 	clientCtx         client.Context
 	simulate          baseAppSimulateFn
+	simulateSpecial   baseAppSimulateFn
 	interfaceRegistry codectypes.InterfaceRegistry
 }
 
 // NewTxServer creates a new Tx service server.
-func NewTxServer(clientCtx client.Context, simulate baseAppSimulateFn, interfaceRegistry codectypes.InterfaceRegistry) txtypes.ServiceServer {
+func NewTxServer(clientCtx client.Context, simulate, simulateSpecial baseAppSimulateFn, interfaceRegistry codectypes.InterfaceRegistry) txtypes.ServiceServer {
 	return txServer{
 		clientCtx:         clientCtx,
 		simulate:          simulate,
+		simulateSpecial:   simulateSpecial,
 		interfaceRegistry: interfaceRegistry,
 	}
 }
@@ -135,6 +137,40 @@ func (s txServer) Simulate(ctx context.Context, req *txtypes.SimulateRequest) (*
 	}
 
 	return &txtypes.SimulateResponse{
+		GasInfo: &gasInfo,
+		Result:  result,
+	}, nil
+}
+
+// Simulate implements the ServiceServer.Simulate RPC method.
+func (s txServer) SimulateSpecial(ctx context.Context, req *txtypes.SimulateSpecialRequest) (*txtypes.SimulateSpecialResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid empty tx")
+	}
+
+	txBytes := req.TxBytes
+	if txBytes == nil && req.Tx != nil {
+		// This block is for backwards-compatibility.
+		// We used to support passing a `Tx` in req. But if we do that, sig
+		// verification might not pass, because the .Marshal() below might not
+		// be the same marshaling done by the client.
+		var err error
+		txBytes, err = proto.Marshal(req.Tx)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid tx; %v", err)
+		}
+	}
+
+	if txBytes == nil {
+		return nil, status.Errorf(codes.InvalidArgument, "empty txBytes is not allowed")
+	}
+
+	gasInfo, result, err := s.simulateSpecial(txBytes)
+	if err != nil {
+		return nil, status.Errorf(codes.Unknown, "%v With gas wanted: '%d' and gas used: '%d' ", err, gasInfo.GasWanted, gasInfo.GasUsed)
+	}
+
+	return &txtypes.SimulateSpecialResponse{
 		GasInfo: &gasInfo,
 		Result:  result,
 	}, nil
@@ -342,12 +378,12 @@ func (s txServer) TxDecodeAmino(ctx context.Context, req *txtypes.TxDecodeAminoR
 func RegisterTxService(
 	qrt gogogrpc.Server,
 	clientCtx client.Context,
-	simulateFn baseAppSimulateFn,
+	simulateFn, simulateSpecialFn baseAppSimulateFn,
 	interfaceRegistry codectypes.InterfaceRegistry,
 ) {
 	txtypes.RegisterServiceServer(
 		qrt,
-		NewTxServer(clientCtx, simulateFn, interfaceRegistry),
+		NewTxServer(clientCtx, simulateFn, simulateSpecialFn, interfaceRegistry),
 	)
 }
 

@@ -34,6 +34,8 @@ type Context struct {
 	gasMeter             GasMeter
 	blockGasMeter        GasMeter
 	taxGasMeter          TaxGasMeter
+	cacheTaxGasMeter     TaxGasMeter
+	specialSimulate      bool
 	checkTx              bool
 	recheckTx            bool // if recheckTx == true, then checkTx must also be true
 	minGasPrice          DecCoins
@@ -59,6 +61,8 @@ func (c Context) VoteInfos() []abci.VoteInfo                 { return c.voteInfo
 func (c Context) GasMeter() GasMeter                         { return c.gasMeter }
 func (c Context) BlockGasMeter() GasMeter                    { return c.blockGasMeter }
 func (c Context) TaxGasMeter() TaxGasMeter                   { return c.taxGasMeter }
+func (c Context) CacheTaxGasMeter() TaxGasMeter              { return c.cacheTaxGasMeter }
+func (c Context) IsSpecialSimulate() bool                    { return c.specialSimulate }
 func (c Context) IsCheckTx() bool                            { return c.checkTx }
 func (c Context) IsReCheckTx() bool                          { return c.recheckTx }
 func (c Context) MinGasPrices() DecCoins                     { return c.minGasPrice }
@@ -109,6 +113,7 @@ func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, logger log
 		logger:               logger,
 		gasMeter:             storetypes.NewInfiniteGasMeter(),
 		taxGasMeter:          storetypes.NewTaxGasMeter(),
+		cacheTaxGasMeter:     storetypes.NewTaxGasMeter(),
 		minGasPrice:          DecCoins{},
 		eventManager:         NewEventManager(),
 		kvGasConfig:          storetypes.KVGasConfig(),
@@ -224,6 +229,11 @@ func (c Context) WithIsCheckTx(isCheckTx bool) Context {
 	return c
 }
 
+func (c Context) WithSpecialSimulate(isSpecialSimulate bool) Context {
+	c.specialSimulate = isSpecialSimulate
+	return c
+}
+
 // WithIsRecheckTx called with true will also set true on checkTx in order to
 // enforce the invariant that if recheckTx = true then checkTx = true as well.
 func (c Context) WithIsReCheckTx(isRecheckTx bool) Context {
@@ -240,9 +250,15 @@ func (c Context) WithMinGasPrices(gasPrices DecCoins) Context {
 	return c
 }
 
-// WithTaxGasMeter returns a Context with an updated tax gas meter value
+// WithNewTaxGasMeter returns a Context with an new tax gas meter value
 func (c Context) WithNewTaxGasMeter() Context {
 	c.taxGasMeter = storetypes.NewTaxGasMeter()
+	return c
+}
+
+// WithNewCacheTaxGasMeter returns a Context with an new tax gas meter value
+func (c Context) WithNewCacheTaxGasMeter() Context {
+	c.cacheTaxGasMeter = storetypes.NewTaxGasMeter()
 	return c
 }
 

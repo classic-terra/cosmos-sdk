@@ -43,6 +43,7 @@ type GasMeter interface {
 	GasConsumedToLimit() Gas
 	GasRemaining() Gas
 	Limit() Gas
+	ExtendGasLimit()
 	ConsumeGas(amount Gas, descriptor string)
 	RefundGas(amount Gas, descriptor string)
 	IsPastLimit() bool
@@ -146,6 +147,10 @@ func (g *basicGasMeter) String() string {
 	return fmt.Sprintf("BasicGasMeter:\n  limit: %d\n  consumed: %d", g.limit, g.consumed)
 }
 
+func (g *basicGasMeter) ExtendGasLimit() {
+	g.limit = math.MaxUint64
+}
+
 type infiniteGasMeter struct {
 	consumed Gas
 }
@@ -215,6 +220,10 @@ func (g *infiniteGasMeter) IsOutOfGas() bool {
 // String returns the InfiniteGasMeter's gas consumed.
 func (g *infiniteGasMeter) String() string {
 	return fmt.Sprintf("InfiniteGasMeter:\n  consumed: %d", g.consumed)
+}
+
+func (g *infiniteGasMeter) ExtendGasLimit() {
+	// No-op, infiniteGasMeter doesn't have a limit
 }
 
 // GasConfig defines gas cost for each operation on KVStores

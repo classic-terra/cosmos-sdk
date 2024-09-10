@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Service_Simulate_FullMethodName        = "/cosmos.tx.v1beta1.Service/Simulate"
+	Service_SimulateSpecial_FullMethodName = "/cosmos.tx.v1beta1.Service/SimulateSpecial"
 	Service_GetTx_FullMethodName           = "/cosmos.tx.v1beta1.Service/GetTx"
 	Service_BroadcastTx_FullMethodName     = "/cosmos.tx.v1beta1.Service/BroadcastTx"
 	Service_GetTxsEvent_FullMethodName     = "/cosmos.tx.v1beta1.Service/GetTxsEvent"
@@ -38,6 +39,8 @@ const (
 type ServiceClient interface {
 	// Simulate simulates executing a transaction for estimating gas usage.
 	Simulate(ctx context.Context, in *SimulateRequest, opts ...grpc.CallOption) (*SimulateResponse, error)
+	// Simulate special for calculating tax gas
+	SimulateSpecial(ctx context.Context, in *SimulateSpecialRequest, opts ...grpc.CallOption) (*SimulateSpecialResponse, error)
 	// GetTx fetches a tx by hash.
 	GetTx(ctx context.Context, in *GetTxRequest, opts ...grpc.CallOption) (*GetTxResponse, error)
 	// BroadcastTx broadcast transaction.
@@ -78,6 +81,16 @@ func (c *serviceClient) Simulate(ctx context.Context, in *SimulateRequest, opts 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SimulateResponse)
 	err := c.cc.Invoke(ctx, Service_Simulate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) SimulateSpecial(ctx context.Context, in *SimulateSpecialRequest, opts ...grpc.CallOption) (*SimulateSpecialResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SimulateSpecialResponse)
+	err := c.cc.Invoke(ctx, Service_SimulateSpecial_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -172,6 +185,8 @@ func (c *serviceClient) TxDecodeAmino(ctx context.Context, in *TxDecodeAminoRequ
 type ServiceServer interface {
 	// Simulate simulates executing a transaction for estimating gas usage.
 	Simulate(context.Context, *SimulateRequest) (*SimulateResponse, error)
+	// Simulate special for calculating tax gas
+	SimulateSpecial(context.Context, *SimulateSpecialRequest) (*SimulateSpecialResponse, error)
 	// GetTx fetches a tx by hash.
 	GetTx(context.Context, *GetTxRequest) (*GetTxResponse, error)
 	// BroadcastTx broadcast transaction.
@@ -210,6 +225,9 @@ type UnimplementedServiceServer struct{}
 
 func (UnimplementedServiceServer) Simulate(context.Context, *SimulateRequest) (*SimulateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Simulate not implemented")
+}
+func (UnimplementedServiceServer) SimulateSpecial(context.Context, *SimulateSpecialRequest) (*SimulateSpecialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SimulateSpecial not implemented")
 }
 func (UnimplementedServiceServer) GetTx(context.Context, *GetTxRequest) (*GetTxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTx not implemented")
@@ -270,6 +288,24 @@ func _Service_Simulate_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).Simulate(ctx, req.(*SimulateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_SimulateSpecial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SimulateSpecialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).SimulateSpecial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_SimulateSpecial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).SimulateSpecial(ctx, req.(*SimulateSpecialRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -428,6 +464,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Simulate",
 			Handler:    _Service_Simulate_Handler,
+		},
+		{
+			MethodName: "SimulateSpecial",
+			Handler:    _Service_SimulateSpecial_Handler,
 		},
 		{
 			MethodName: "GetTx",

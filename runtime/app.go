@@ -172,7 +172,7 @@ func (a *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 
 // RegisterTxService implements the Application.RegisterTxService method.
 func (a *App) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(a.GRPCQueryRouter(), clientCtx, a.Simulate, a.interfaceRegistry)
+	authtx.RegisterTxService(a.GRPCQueryRouter(), clientCtx, a.Simulate, a.SimulateSpecial, a.interfaceRegistry)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.

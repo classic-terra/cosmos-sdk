@@ -37,13 +37,22 @@ func (sud SetUpContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 		return newCtx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be GasTx")
 	}
 
-	newCtx = SetGasMeter(simulate, ctx, gasTx.GetGas())
+	gas := gasTx.GetGas()
+	if !simulate && ctx.CacheTaxGasMeter().GasConsumed().IsInt64() {
+		cacheTaxGasConsumed := ctx.CacheTaxGasMeter().GasConsumed().Uint64()
+		if cacheTaxGasConsumed < gas && cacheTaxGasConsumed > 0 {
+			gas = gas - cacheTaxGasConsumed
+		}
+	}
+	newCtx = SetGasMeter(simulate, ctx, gas)
 
 	if cp := ctx.ConsensusParams(); cp != nil && cp.Block != nil {
 		// If there exists a maximum block gas limit, we must ensure that the tx
 		// does not exceed it.
-		if cp.Block.MaxGas > 0 && gasTx.GetGas() > uint64(cp.Block.MaxGas) {
-			return newCtx, sdkerrors.Wrapf(sdkerrors.ErrInvalidGasLimit, "tx gas limit %d exceeds block max gas %d", gasTx.GetGas(), cp.Block.MaxGas)
+		if cp.Block.MaxGas > 0 && gas > uint64(cp.Block.MaxGas) {
+			if simulate {
+				return newCtx, sdkerrors.Wrapf(sdkerrors.ErrInvalidGasLimit, "tx gas limit %d exceeds block max gas %d", gas, cp.Block.MaxGas)
+			}
 		}
 	}
 
@@ -58,7 +67,7 @@ func (sud SetUpContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 			case sdk.ErrorOutOfGas:
 				log := fmt.Sprintf(
 					"out of gas in location: %v; gasWanted: %d, gasUsed: %d",
-					rType.Descriptor, gasTx.GetGas(), newCtx.GasMeter().GasConsumed())
+					rType.Descriptor, gas, newCtx.GasMeter().GasConsumed())
 
 				err = sdkerrors.Wrap(sdkerrors.ErrOutOfGas, log)
 			default:

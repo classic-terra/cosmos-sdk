@@ -26,6 +26,11 @@ func (app *BaseApp) Simulate(txBytes []byte) (sdk.GasInfo, *sdk.Result, error) {
 	return gasInfo, result, err
 }
 
+func (app *BaseApp) SimulateSpecial(txBytes []byte) (sdk.GasInfo, *sdk.Result, error) {
+	gasInfo, result, _, _, _, err := app.runTx(runTxModeSimulateSpecial, txBytes)
+	return gasInfo, result, err
+}
+
 func (app *BaseApp) SimDeliver(txEncoder sdk.TxEncoder, tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error) {
 	// See comment for Check().
 	bz, err := txEncoder(tx)

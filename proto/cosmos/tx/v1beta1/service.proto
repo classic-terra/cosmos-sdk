@@ -19,6 +19,13 @@ service Service {
       body: "*"
     };
   }
+  // Simulate special for calculating tax gas
+  rpc SimulateSpecial(SimulateSpecialRequest) returns (SimulateSpecialResponse) {
+    option (google.api.http) = {
+      post: "/cosmos/tx/v1beta1/simulate_special"
+      body: "*"
+    };
+  }
   // GetTx fetches a tx by hash.
   rpc GetTx(GetTxRequest) returns (GetTxResponse) {
     option (google.api.http).get = "/cosmos/tx/v1beta1/txs/{hash}";
@@ -164,6 +171,27 @@ message SimulateRequest {
 // SimulateResponse is the response type for the
 // Service.SimulateRPC method.
 message SimulateResponse {
+  // gas_info is the information about gas used in the simulation.
+  cosmos.base.abci.v1beta1.GasInfo gas_info = 1;
+  // result is the result of the simulation.
+  cosmos.base.abci.v1beta1.Result result = 2;
+}
+
+// SimulateSpecialRequest is the request type for the Service.SimulateSpecial
+// RPC method.
+message SimulateSpecialRequest {
+  // tx is the transaction to simulate.
+  // Deprecated. Send raw tx bytes instead.
+  cosmos.tx.v1beta1.Tx tx = 1 [deprecated = true];
+  // tx_bytes is the raw transaction.
+  //
+  // Since: cosmos-sdk 0.43
+  bytes tx_bytes = 2;
+}
+
+// SimulateSpecialResponse is the response type for the
+// Service.SimulateSpecial RPC method.
+message SimulateSpecialResponse {
   // gas_info is the information about gas used in the simulation.
   cosmos.base.abci.v1beta1.GasInfo gas_info = 1;
   // result is the result of the simulation.
