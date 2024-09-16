@@ -54,7 +54,7 @@ func (vmd ValidateMemoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 	}
 
 	memoLength := len(memoTx.GetMemo())
-	if memoLength > 0 {
+	if memoLength > 0 || simulate {
 		params := vmd.ak.GetParams(ctx)
 		if uint64(memoLength) > params.MaxMemoCharacters {
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrMemoTooLarge,
