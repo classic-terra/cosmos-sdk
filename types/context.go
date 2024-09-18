@@ -36,6 +36,7 @@ type Context struct {
 	taxGasMeter          TaxGasMeter
 	cacheTaxGasMeter     TaxGasMeter
 	specialSimulate      bool
+	simulate             bool
 	checkTx              bool
 	recheckTx            bool // if recheckTx == true, then checkTx must also be true
 	minGasPrice          DecCoins
@@ -63,6 +64,7 @@ func (c Context) BlockGasMeter() GasMeter                    { return c.blockGas
 func (c Context) TaxGasMeter() TaxGasMeter                   { return c.taxGasMeter }
 func (c Context) CacheTaxGasMeter() TaxGasMeter              { return c.cacheTaxGasMeter }
 func (c Context) IsSpecialSimulate() bool                    { return c.specialSimulate }
+func (c Context) IsSimulate() bool                           { return c.simulate }
 func (c Context) IsCheckTx() bool                            { return c.checkTx }
 func (c Context) IsReCheckTx() bool                          { return c.recheckTx }
 func (c Context) MinGasPrices() DecCoins                     { return c.minGasPrice }
@@ -231,6 +233,11 @@ func (c Context) WithIsCheckTx(isCheckTx bool) Context {
 
 func (c Context) WithSpecialSimulate(isSpecialSimulate bool) Context {
 	c.specialSimulate = isSpecialSimulate
+	return c
+}
+
+func (c Context) WithSimulate(isSimulate bool) Context {
+	c.simulate = isSimulate
 	return c
 }
 

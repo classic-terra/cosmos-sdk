@@ -596,6 +596,7 @@ func (app *BaseApp) getContextForTx(mode runTxMode, txBytes []byte) sdk.Context 
 
 	if mode == runTxModeSimulate {
 		ctx, _ = ctx.CacheContext()
+		ctx = ctx.WithSimulate(true)
 	}
 
 	if mode == runTxModeSimulateSpecial {
