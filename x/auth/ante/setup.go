@@ -38,18 +38,16 @@ func (sud SetUpContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 	}
 
 	gas := gasTx.GetGas()
+	cacheTaxGasConsumed := uint64(0)
 	if !simulate && ctx.CacheTaxGasMeter().GasConsumed().IsInt64() {
-		cacheTaxGasConsumed := ctx.CacheTaxGasMeter().GasConsumed().Uint64()
-		if cacheTaxGasConsumed < gas && cacheTaxGasConsumed > 0 {
-			gas = gas - cacheTaxGasConsumed
-		}
+		cacheTaxGasConsumed = ctx.CacheTaxGasMeter().GasConsumed().Uint64()
 	}
 	newCtx = SetGasMeter(simulate, ctx, gas)
 
 	if cp := ctx.ConsensusParams(); cp != nil && cp.Block != nil {
 		// If there exists a maximum block gas limit, we must ensure that the tx
 		// does not exceed it.
-		if cp.Block.MaxGas > 0 && gas > uint64(cp.Block.MaxGas) {
+		if cp.Block.MaxGas > 0 && gas-cacheTaxGasConsumed > uint64(cp.Block.MaxGas) {
 			if simulate {
 				return newCtx, sdkerrors.Wrapf(sdkerrors.ErrInvalidGasLimit, "tx gas limit %d exceeds block max gas %d", gas, cp.Block.MaxGas)
 			}
